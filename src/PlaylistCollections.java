@@ -1,5 +1,8 @@
-/*
- * Class to keep the list of playlist objects in them
+/**
+ *  Class to keep the list of playlist objects in them
+ *  The file i/o methods for collections of playlists used by both system and user 
+ *  are contained in this class
+ *  @auhor CISC213.N81
  */
 import java.io.FileReader;
 import java.io.IOException;
@@ -7,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -21,18 +23,13 @@ public class PlaylistCollections {
         this.collectionAsJson = new JSONArray();
     }
 
-    public void addPlaylist(Playlist playlist) {
+    public void addPlaylist(Playlist playlist, String fileName) {
         playlists.add(playlist);
-        for (Playlist playlistTest : playlists) {
-        	for (Song song : playlist.getSongs()) {
-        		System.out.println(song.getName());
-        	}
-        }
-        updateJsonFile();
+        updateJsonFile(fileName);
     }
 
     @SuppressWarnings("unchecked")
-	private void updateJsonFile() {
+	public void updateJsonFile(String fileName) {
     	JSONObject newUserPlaylistsJson = new JSONObject();
     	JSONArray playlistsJsonArray = new JSONArray();
     	for (Playlist playlist : playlists) {
@@ -53,17 +50,18 @@ public class PlaylistCollections {
     		currentPlaylistJson.put("songs", songJsonArray);
     		playlistsJsonArray.add(currentPlaylistJson);
     	}
+    	newUserPlaylistsJson.put("playlists",  playlistsJsonArray);
     	try {
-			Files.write(Paths.get("UserPlaylistTest.json"), newUserPlaylistsJson.toJSONString().getBytes());
+			Files.write(Paths.get(Player.currentUser.getPlaylistFileName()), newUserPlaylistsJson.toJSONString().getBytes());
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 		
 	}
 
-	public void removePlaylist(Playlist playlist) {
+	public void removePlaylist(Playlist playlist, String fileName) {
         playlists.remove(playlist);
-        updateJsonFile();
+        updateJsonFile(fileName);
     }
 
     public List<Playlist> getPlaylists() {
